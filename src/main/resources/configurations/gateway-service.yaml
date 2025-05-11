@@ -1,0 +1,95 @@
+server:
+  port: 8088
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/service/user/**
+        - id: reclamation-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/services/reclamation/**
+        - id: reponse-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/services/reponse/**
+        - id: shop-service
+          uri: lb://SHOP-SERVICE
+          predicates:
+            - Path=/articles/**
+        - id: order-service
+          uri: lb://SHOP-SERVICE
+          predicates:
+            - Path=/orders/**
+        - id: basket-service
+          uri: lb://SHOP-SERVICE
+          predicates:
+            - Path=/basket/**
+        - id: reports-service
+          uri: lb://SHOP-SERVICE
+          predicates:
+            - Path=/reports/**
+        - id: paiement-service
+          uri: lb://FINANCE-SERVICE
+          predicates:
+            - Path=/api/paiements/**
+        - id: depense-service
+          uri: lb://FINANCE-SERVICE
+          predicates:
+            - Path=/api/depenses/**
+        - id: facture-service
+          uri: lb://FINANCE-SERVICE
+          predicates:
+            - Path=/api/factures/**
+        - id: keycloak-node-service
+          uri: http://localhost:3000
+          predicates:
+            - Path=/auth/**
+        - id: weather-service
+          uri: lb://PROJECT-SERVICE
+          predicates:
+            - Path=/api/weather/**
+        - id: project-service
+          uri: lb://PROJECT-SERVICE
+          predicates:
+            - Path=/api/projects/**
+        - id: google-auth-service
+          uri: lb://PROJECT-SERVICE
+          predicates:
+            - Path=/api/auth/google/**
+        - id: etudes-service
+          uri: lb://PROJECT-SERVICE
+          predicates:
+            - Path=/api/etudes/**
+        - id: task-service
+          uri: lb://TASKSSCH-SERVICE
+          predicates:
+            - Path=/tasks/**
+        
+        - id: task-service
+          uri: lb://TASKSSCH-SERVICE
+          predicates:
+            - Path=/cloudinary/**
+        - id : mission-service
+          uri: lb://MISSION-SERVICE
+          predicates:
+            - Path=/mission/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
