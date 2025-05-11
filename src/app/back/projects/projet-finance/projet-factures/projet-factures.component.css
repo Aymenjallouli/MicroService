@@ -1,0 +1,13 @@
+.factures-container {
+  margin-top: 20px;
+}
+
+.action-btn {
+  margin-right: 5px;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}

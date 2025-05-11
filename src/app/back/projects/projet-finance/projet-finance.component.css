@@ -1,0 +1,44 @@
+.card-header .nav-link {
+  color: #495057;
+  background-color: #fff;
+  border-color: transparent;
+}
+
+.card-header .nav-link.active {
+  color: #007bff;
+  background-color: #fff;
+  border-color: #dee2e6 #dee2e6 #fff;
+  border-bottom: 2px solid #007bff;
+  font-weight: bold;
+}
+
+.card-header .nav-link:hover:not(.active) {
+  color: #0056b3;
+}
+
+.actions-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.project-title {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.action-btn {
+  margin-right: 5px;
+}
+
+.depense-form {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.depense-status-badge {
+  font-size: 0.8em;
+}

@@ -45,6 +45,7 @@ import { WeatherFrontComponent } from './front/weather-front/weather-front.compo
 import { EtudesFrontComponent } from './front/etudes-front/etudes-front.component';
 import { PredictionComponent } from './prediction/prediction.component';
 import { BuildingCostComponent } from './building-cost/building-cost.component';
+import { ProjetFinanceComponent } from './back/projects/projet-finance';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -92,6 +93,7 @@ const routes: Routes = [
       { path: 'orders', component: OrderComponent },
       { path: 'addOrder', component: AddOrderComponent },
       { path: 'projects', component: ProjectsComponent },
+      { path: 'projects/:id/finance', component: ProjetFinanceComponent },
 
       { path: 'etudes', component: EtudesComponent },
       { path: 'weather', component: WeatherComponent },

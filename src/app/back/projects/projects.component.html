@@ -166,8 +166,14 @@
                 <td>
                   <button class="btn btn-warning btn-sm me-1" (click)="editProject(project)">Edit</button>
                   <button class="btn btn-danger btn-sm me-1" (click)="deleteProject(project.id!)">Delete</button>
-                  <button class="btn btn-info btn-sm" *ngIf="project.documents"
+                  <button class="btn btn-info btn-sm me-1" *ngIf="project.documents"
                     (click)="downloadFile(project.documents)">Download</button>
+                  <a class="btn btn-primary btn-sm me-1" [routerLink]="['/admins/projects', project.id, 'tasks']">
+                    <i class="fas fa-tasks"></i> Tasks
+                  </a>
+                  <a class="btn btn-success btn-sm" [routerLink]="['/admins/projects', project.id, 'finance']">
+                    <i class="fas fa-coins"></i> Finance
+                  </a>
                 </td>
               </tr>
             </tbody>

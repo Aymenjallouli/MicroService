@@ -3,12 +3,13 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule } from 'ngx-toastr';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
+import { CorsInterceptor } from './interceptors/cors.interceptor';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
@@ -138,11 +139,9 @@ import { BuildingCostComponent } from './building-cost/building-cost.component';
     ChatbotComponent,
     ProjectFrontListComponent,
     WeatherFrontComponent,
-    EtudesFrontComponent,
-    PredictionComponent,
+    EtudesFrontComponent,    PredictionComponent,
     BuildingCostComponent,
-  ],
-  imports: [
+  ],  imports: [
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
@@ -167,8 +166,7 @@ import { BuildingCostComponent } from './building-cost/building-cost.component';
     MatTableModule,
     MatToolbarModule,
     MatButtonModule,
-  ],
-  providers: [
+  ],  providers: [
     {
       provide: APP_INITIALIZER,
 
@@ -187,6 +185,11 @@ import { BuildingCostComponent } from './building-cost/building-cost.component';
         }),
       multi: true,
       deps: [KeycloakService],
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: CorsInterceptor,
+      multi: true
     },
     provideAnimationsAsync(),
     UserServiceService,

@@ -1,0 +1,199 @@
+<div class="container-fluid">
+  <h2 class="project-title">Gestion financière: {{ projectName }}</h2>
+
+  <!-- Navigation onglets -->
+  <div class="card">
+    <div class="card-header">
+      <ul class="nav nav-tabs card-header-tabs">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'depenses'" (click)="setActiveTab('depenses')">
+            <i class="fas fa-money-bill-wave"></i> Dépenses
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'factures'" (click)="setActiveTab('factures')">
+            <i class="fas fa-file-invoice"></i> Factures
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'paiements'" (click)="setActiveTab('paiements')">
+            <i class="fas fa-credit-card"></i> Paiements
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body">
+      <!-- Contenu de l'onglet dépenses -->
+      <div *ngIf="activeTab === 'depenses'">
+        <!-- Formulaire ajout dépense -->
+        <div class="card depense-form">
+          <div class="card-header">
+            <h5 class="mb-0">Nouvelle dépense</h5>
+          </div>
+          <div class="card-body">
+            <form (ngSubmit)="saveDepense()">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="description" class="form-label">Description*</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="description"
+                      [(ngModel)]="newDepense.description"
+                      name="description"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="montant" class="form-label">Montant*</label>
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="montant"
+                        [(ngModel)]="newDepense.montant"
+                        name="montant"
+                        min="0"
+                        step="0.01"
+                        required
+                      />
+                      <span class="input-group-text">DT</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="type" class="form-label">Type*</label>
+                    <select
+                      class="form-select"
+                      id="type"
+                      [(ngModel)]="newDepense.type"
+                      name="type"
+                      required
+                    >
+                      <option value="MATERIEL">Matériel</option>
+                      <option value="MAIN_DOEUVRE">Main d'oeuvre</option>
+                      <option value="TRANSPORT">Transport</option>
+                      <option value="AUTRES">Autres</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="beneficiaire" class="form-label">Bénéficiaire</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="beneficiaire"
+                      [(ngModel)]="newDepense.beneficiaire"
+                      name="beneficiaire"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <div class="mb-3">
+                    <label for="fileInput" class="form-label">Justificatif (optionnel)</label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      id="fileInput"
+                      (change)="onFileSelected($event)"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                  <button type="submit" class="btn btn-primary w-100" [disabled]="isLoading">
+                    <i class="fas fa-plus"></i> Ajouter la dépense
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Liste des dépenses -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h5 class="mb-0">Liste des dépenses</h5>
+          </div>
+          <div class="card-body">
+            <div *ngIf="isLoading" class="text-center">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            <div *ngIf="!isLoading && depenses.length === 0" class="alert alert-info">
+              Aucune dépense trouvée pour ce projet
+            </div>
+            <div class="table-responsive" *ngIf="depenses.length > 0">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Montant</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Statut</th>
+                    <th>Bénéficiaire</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let depense of depenses">
+                    <td>{{ depense.description }}</td>
+                    <td>{{ depense.montant | currency:'DT' }}</td>
+                    <td>{{ depense.date | date:'dd/MM/yyyy' }}</td>
+                    <td>
+                      <span [ngSwitch]="depense.type">
+                        <span *ngSwitchCase="'MATERIEL'">Matériel</span>
+                        <span *ngSwitchCase="'MAIN_DOEUVRE'">Main d'oeuvre</span>
+                        <span *ngSwitchCase="'TRANSPORT'">Transport</span>
+                        <span *ngSwitchCase="'AUTRES'">Autres</span>
+                        <span *ngSwitchDefault>{{ depense.type }}</span>
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge depense-status-badge" [ngClass]="{
+                        'bg-warning': depense.statut === 'EN_ATTENTE',
+                        'bg-success': depense.statut === 'VALIDEE',
+                        'bg-danger': depense.statut === 'REJETEE'
+                      }">{{ depense.statut || 'EN_ATTENTE' }}</span>
+                    </td>
+                    <td>{{ depense.beneficiaire || '-' }}</td>
+                    <td>
+                      <div class="btn-group">
+                        <button class="btn btn-sm btn-info action-btn" *ngIf="depense.fileName"
+                                (click)="downloadFile(depense.id!)" title="Télécharger le justificatif">
+                          <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary action-btn" (click)="generateFacture(depense.id!)" title="Générer une facture">
+                          <i class="fas fa-file-invoice"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger action-btn" (click)="deleteDepense(depense.id!)" title="Supprimer">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenu de l'onglet factures -->
+      <div *ngIf="activeTab === 'factures'">
+        <app-projet-factures [projectId]="projectId"></app-projet-factures>
+      </div>
+
+      <!-- Contenu de l'onglet paiements -->
+      <div *ngIf="activeTab === 'paiements'">
+        <app-projet-paiements [projectId]="projectId"></app-projet-paiements>
+      </div>
+    </div>
+  </div>
+</div>

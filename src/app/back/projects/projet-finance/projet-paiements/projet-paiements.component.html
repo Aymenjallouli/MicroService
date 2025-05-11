@@ -1,0 +1,50 @@
+<div class="card">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">Liste des paiements</h5>
+  </div>
+  <div class="card-body">
+    <div *ngIf="isLoading" class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+    <div *ngIf="!isLoading && paiements.length === 0" class="alert alert-info">
+      Aucun paiement trouvé pour ce projet
+    </div>
+    <div class="table-responsive" *ngIf="paiements.length > 0">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Facture</th>
+            <th>Montant</th>
+            <th>Date</th>
+            <th>Méthode</th>
+            <th>Référence</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let paiement of paiements">            <td>{{ paiement.facture?.id }}</td>
+            <td>{{ paiement.montant | currency:'DT' }}</td>
+            <td>{{ paiement.datePaiement | date:'dd/MM/yyyy' }}</td>
+            <td>{{ paiement.methodePaiement }}</td>
+            <td>{{ paiement.reference }}</td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'bg-success': paiement.status === 'COMPLETE',
+                'bg-warning': paiement.status === 'EN_ATTENTE',
+                'bg-danger': paiement.status === 'ANNULE'
+              }">{{ paiement.status }}</span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-danger action-btn" (click)="deletePaiement(paiement.id!)" title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,162 @@
+<div class="container-fluid">
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="task" class="task-details">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="mb-0">{{ task.title }}</h2>
+      <a [routerLink]="['/projects', projectId, 'tasks']" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Retour aux tâches
+      </a>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8">
+        <!-- Task Details Card -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Détails de la tâche</h5>
+            <button class="btn btn-primary btn-sm" (click)="updateTask()">
+              <i class="fas fa-save"></i> Enregistrer
+            </button>
+          </div>
+          <div class="card-body">
+            <form>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="taskTitle" class="form-label">Titre</label>
+                    <input type="text" class="form-control" id="taskTitle" [(ngModel)]="task.title" name="title">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="taskStatus" class="form-label">Statut</label>
+                    <select class="form-select" id="taskStatus" [(ngModel)]="task.status" name="status">
+                      <option value="UNREACHED">Non commencé</option>
+                      <option value="INPROGRESS">En cours</option>
+                      <option value="DONE">Terminé</option>
+                      <option value="OVERDUE">En retard</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="mb-3">
+                    <label for="taskDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="taskDescription" rows="3" [(ngModel)]="task.description" name="description"></textarea>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="taskPriority" class="form-label">Priorité</label>
+                    <select class="form-select" id="taskPriority" [(ngModel)]="task.priority" name="priority">
+                      <option value="LOW">Basse</option>
+                      <option value="MEDIUM">Moyenne</option>
+                      <option value="HIGH">Haute</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="taskAssignee" class="form-label">Assigné à</label>
+                    <input type="number" class="form-control" id="taskAssignee" [(ngModel)]="task.assigneeId" name="assigneeId">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="taskStartDate" class="form-label">Date de début</label>
+                    <input type="date" class="form-control" id="taskStartDate" [(ngModel)]="task.startDate" name="startDate">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="taskDueDate" class="form-label">Date d'échéance</label>
+                    <input type="date" class="form-control" id="taskDueDate" [(ngModel)]="task.dueDate" name="dueDate">
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer text-muted">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="me-2">Projet: {{ task.projectName || 'Non spécifié' }}</span>
+              </div>
+              <div>
+                <span class="badge me-2" [ngClass]="getStatusClass(task.status)">
+                  {{ task.status === 'UNREACHED' ? 'Non commencé' : 
+                     task.status === 'INPROGRESS' ? 'En cours' : 
+                     task.status === 'DONE' ? 'Terminé' : 
+                     task.status === 'OVERDUE' ? 'En retard' : task.status }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task Image if available -->
+        <div class="card mt-3" *ngIf="task.imageUrl">
+          <div class="card-body">
+            <img [src]="task.imageUrl" class="img-fluid" alt="Task image">
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <!-- Missions Card -->
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Missions</h5>
+          </div>
+          <div class="card-body">
+            <!-- New Mission Form -->
+            <form (ngSubmit)="saveMission()" class="mb-4">
+              <h6 class="mb-3">Nouvelle mission</h6>
+              <div class="mb-3">
+                <label for="missionTitle" class="form-label">Titre*</label>
+                <input type="text" class="form-control" id="missionTitle" [(ngModel)]="newMission.title" name="title" required>
+              </div>
+              <div class="mb-3">
+                <label for="missionDescription" class="form-label">Description</label>
+                <textarea class="form-control" id="missionDescription" [(ngModel)]="newMission.description" name="description" rows="2"></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="missionDueDate" class="form-label">Date d'échéance*</label>
+                <input type="date" class="form-control" id="missionDueDate" [(ngModel)]="newMission.dueDate" name="dueDate" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100" [disabled]="isLoading">
+                <i class="fas fa-plus"></i> Ajouter
+              </button>
+            </form>
+            
+            <!-- Missions List -->
+            <div *ngIf="missions.length === 0" class="text-center text-muted py-3">
+              Aucune mission pour cette tâche
+            </div>
+            <div *ngIf="missions.length > 0" class="missions-list">
+              <div *ngFor="let mission of missions" class="mission-item mb-3 p-3 border rounded">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="mb-0">{{ mission.title }}</h6>
+                  <span class="badge" [ngClass]="getMissionStatusClass(mission.status)">
+                    {{ mission.status }}
+                  </span>
+                </div>
+                <p class="text-muted small mb-1">{{ mission.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">Échéance: {{ mission.dueDate | date:'dd/MM/yyyy' }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="!task && !isLoading" class="alert alert-danger mt-3">
+    Tâche introuvable
+  </div>
+</div>

@@ -44,30 +44,52 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   }
 
   initMap(): void {
-    // Only initialize if the map isn’t already set up
-    if (!this.map) {
-      this.map = L.map('map').setView([51.505, -0.09], 13); // Default center: London
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(this.map);
-
-      this.map.on('click', (e: L.LeafletMouseEvent) => {
-        const { lat, lng } = e.latlng;
-        this.selectedProject.latitude = lat;
-        this.selectedProject.longitude = lng;
-        console.log('Selected coordinates:', { latitude: lat, longitude: lng });
-        L.marker([lat, lng]).addTo(this.map!);
-      });
+    // Vérifie si l'onglet de carte est actif avant d'initialiser
+    if (this.currentTab !== 'map') {
+      return; // Ne pas initialiser la carte si l'onglet n'est pas actif
     }
 
-    // Update map view if editing a project with coordinates
-    if (this.selectedProject.latitude && this.selectedProject.longitude) {
-      this.map.setView([this.selectedProject.latitude, this.selectedProject.longitude], 13);
-      L.marker([this.selectedProject.latitude, this.selectedProject.longitude]).addTo(this.map);
-    }
+    // Attendre que le DOM soit prêt
+    setTimeout(() => {
+      const mapElement = document.getElementById('map');
+      
+      if (!mapElement) {
+        console.error('Map container element not found!');
+        return;
+      }
+      
+      // Only initialize if the map isn't already set up
+      if (!this.map) {
+        try {
+          this.map = L.map('map').setView([51.505, -0.09], 13); // Default center: London
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          }).addTo(this.map);
 
-    // Ensure the map renders correctly after tab switch
-    setTimeout(() => this.map?.invalidateSize(), 0);
+          this.map.on('click', (e: L.LeafletMouseEvent) => {
+            const { lat, lng } = e.latlng;
+            this.selectedProject.latitude = lat;
+            this.selectedProject.longitude = lng;
+            console.log('Selected coordinates:', { latitude: lat, longitude: lng });
+            L.marker([lat, lng]).addTo(this.map!);
+          });
+          
+          // Update map view if editing a project with coordinates
+          if (this.selectedProject.latitude && this.selectedProject.longitude) {
+            this.map.setView([this.selectedProject.latitude, this.selectedProject.longitude], 13);
+            L.marker([this.selectedProject.latitude, this.selectedProject.longitude]).addTo(this.map);
+          }
+          
+          console.log('Map initialized successfully');
+        } catch (e) {
+          console.error('Error initializing map:', e);
+        }
+      } else {
+        // Ensure the map renders correctly after tab switch
+        this.map.invalidateSize();
+        console.log('Map resized');
+      }
+    }, 100); // petit délai pour s'assurer que le DOM est prêt
   }
 
   toggleMapSize(): void {

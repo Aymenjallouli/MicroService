@@ -1,0 +1,190 @@
+<div class="container-fluid">
+  <h2 class="project-title">Gestion des tâches: {{ projectName }}</h2>
+
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Nouvelle tâche</h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="saveTask()">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="title" class="form-label">Titre*</label>
+              <input
+                type="text"
+                class="form-control"
+                id="title"
+                [(ngModel)]="newTask.title"
+                name="title"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea
+                class="form-control"
+                id="description"
+                [(ngModel)]="newTask.description"
+                name="description"
+                rows="2"
+              ></textarea>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="status" class="form-label">Statut*</label>
+              <select
+                class="form-select"
+                id="status"
+                [(ngModel)]="newTask.status"
+                name="status"
+                required
+              >
+                <option value="UNREACHED">Non commencé</option>
+                <option value="INPROGRESS">En cours</option>
+                <option value="DONE">Terminé</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="priority" class="form-label">Priorité*</label>
+              <select
+                class="form-select"
+                id="priority"
+                [(ngModel)]="newTask.priority"
+                name="priority"
+                required
+              >
+                <option value="LOW">Basse</option>
+                <option value="MEDIUM">Moyenne</option>
+                <option value="HIGH">Haute</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="assigneeId" class="form-label">Assigné à</label>
+              <input
+                type="number"
+                class="form-control"
+                id="assigneeId"
+                [(ngModel)]="newTask.assigneeId"
+                name="assigneeId"
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="startDate" class="form-label">Date de début*</label>
+              <input
+                type="date"
+                class="form-control"
+                id="startDate"
+                [(ngModel)]="newTask.startDate"
+                name="startDate"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="dueDate" class="form-label">Date d'échéance*</label>
+              <input
+                type="date"
+                class="form-control"
+                id="dueDate"
+                [(ngModel)]="newTask.dueDate"
+                name="dueDate"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="taskFileInput" class="form-label">Document (optionnel)</label>
+              <input
+                type="file"
+                class="form-control"
+                id="taskFileInput"
+                (change)="onFileSelected($event)"
+              />
+            </div>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+              <i class="fas fa-plus"></i> Ajouter la tâche
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mt-4">
+    <div class="card-header bg-white">
+      <h5 class="mb-0">Liste des tâches</h5>
+    </div>
+    <div class="card-body">
+      <div *ngIf="isLoading" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      <div *ngIf="!isLoading && tasks.length === 0" class="alert alert-info">
+        Aucune tâche trouvée pour ce projet
+      </div>
+      <div class="table-responsive" *ngIf="tasks.length > 0">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Description</th>
+              <th>Statut</th>
+              <th>Priorité</th>
+              <th>Début</th>
+              <th>Échéance</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let task of tasks">
+              <td>{{ task.title }}</td>
+              <td>{{ task.description }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatusClass(task.status)">
+                  {{ task.status === 'UNREACHED' ? 'Non commencé' : 
+                     task.status === 'INPROGRESS' ? 'En cours' : 
+                     task.status === 'DONE' ? 'Terminé' : 
+                     task.status === 'OVERDUE' ? 'En retard' : task.status }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getPriorityClass(task.priority)">
+                  {{ task.priority === 'LOW' ? 'Basse' : 
+                     task.priority === 'MEDIUM' ? 'Moyenne' : 
+                     task.priority === 'HIGH' ? 'Haute' : task.priority }}
+                </span>
+              </td>
+              <td>{{ task.startDate | date:'dd/MM/yyyy' }}</td>
+              <td>{{ task.dueDate | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <div class="btn-group">
+                  <a [routerLink]="['/projects', projectId, 'tasks', task.id]" class="btn btn-sm btn-info action-btn" title="Détails">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <button class="btn btn-sm btn-danger action-btn" (click)="deleteTask(task.id!)" title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

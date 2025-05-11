@@ -1,0 +1,44 @@
+{
+  "/api": {
+    "target": "http://localhost:8088",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/tasks": {
+    "target": "http://localhost:8092",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/tasks": "/tasks"
+    }
+  },
+  "/mission": {
+    "target": "http://localhost:8091",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/mission": "/mission"
+    }
+  },
+  "/api/factures": {
+    "target": "http://localhost:8088",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/depenses": {
+    "target": "http://localhost:8088",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/paiements": {
+    "target": "http://localhost:8088",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/projects": {
+    "target": "http://localhost:8088",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

@@ -1,0 +1,129 @@
+<div class="factures-container">
+  <!-- Loader -->
+  <div *ngIf="isLoading" class="spinner-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div class="card" [hidden]="isLoading">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Importer des factures</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="input-group mb-3">
+            <input type="file" class="form-control" id="fileInput" (change)="onFileSelected($event)" accept=".csv">
+            <button class="btn btn-primary" type="button" [disabled]="!selectedFile" (click)="uploadInvoiceFile()">
+              <i class="fas fa-upload"></i> Importer
+            </button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <button class="btn btn-outline-secondary" (click)="downloadTemplate()">
+            <i class="fas fa-download"></i> Télécharger le modèle CSV
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt-4" [hidden]="isLoading">
+    <div class="card-header bg-white">
+      <h5 class="mb-0">Liste des factures</h5>
+    </div>
+    <div class="card-body">
+      <div *ngIf="factures.length === 0" class="alert alert-info">
+        Aucune facture trouvée pour ce projet
+      </div>
+      <div class="table-responsive" *ngIf="factures.length > 0">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Date</th>
+              <th>Montant</th>
+              <th>Statut</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let facture of factures">
+              <td>{{ facture.numero }}</td>
+              <td>{{ facture.dateFacture | date:'dd/MM/yyyy' }}</td>
+              <td>{{ facture.montant | currency:'EUR' }}</td>
+              <td>
+                <span class="badge" 
+                  [ngClass]="{
+                    'bg-warning': facture.statut === 'EMISE',
+                    'bg-success': facture.statut === 'PAYEE',
+                    'bg-danger': facture.statut === 'ANNULEE'
+                  }">
+                  {{ facture.statut }}
+                </span>
+              </td>
+              <td>{{ facture.description }}</td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-success action-btn" title="Créer un paiement" (click)="openPaiementModal(facture)" [disabled]="facture.statut === 'PAYEE'">
+                    <i class="fas fa-money-bill-wave"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger action-btn" (click)="deleteFacture(facture.id!)" title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for creating payment -->
+  <div class="modal fade" id="createPaiementModal" tabindex="-1" aria-labelledby="createPaiementModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createPaiementModalLabel">Créer un paiement</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form *ngIf="selectedFacture">
+            <div class="mb-3">
+              <label class="form-label">Facture #</label>
+              <input type="text" class="form-control" [value]="selectedFacture.numero" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Montant à payer</label>
+              <input type="text" class="form-control" [value]="selectedFacture.montant | currency:'EUR'" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="methodePaiement" class="form-label">Méthode de paiement</label>
+              <select class="form-control" id="methodePaiement" [(ngModel)]="newPaiement.methodePaiement" name="methodePaiement" required>
+                <option value="CARTE">Carte bancaire</option>
+                <option value="VIREMENT">Virement</option>
+                <option value="CHEQUE">Chèque</option>
+                <option value="ESPECES">Espèces</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="reference" class="form-label">Référence</label>
+              <input type="text" class="form-control" id="reference" [(ngModel)]="newPaiement.reference" name="reference" required>
+            </div>
+            <div class="mb-3">
+              <label for="datePaiement" class="form-label">Date</label>
+              <input type="date" class="form-control" id="datePaiement" [(ngModel)]="newPaiement.datePaiement" name="datePaiement" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary" (click)="createPaiement()" [disabled]="!isFormValid()">Créer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
