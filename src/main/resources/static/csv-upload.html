@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Import de dépenses CSV</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            border-left: 5px solid #28a745;
+            display: none;
+        }
+        .error {
+            border-left: 5px solid #dc3545;
+        }
+        .template-link {
+            margin-top: 20px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Import de dépenses par fichier CSV</h1>
+        
+        <div class="form-group">
+            <label for="csvFile">Sélectionnez un fichier CSV :</label>
+            <input type="file" id="csvFile" accept=".csv">
+        </div>
+
+        <button id="uploadBtn">Télécharger et traiter</button>
+        <a href="/api/depenses/csv-template" class="template-link">Télécharger un fichier template</a>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('uploadBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('csvFile');
+            const resultDiv = document.getElementById('result');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                resultDiv.textContent = "Veuillez sélectionner un fichier";
+                resultDiv.classList.add('error');
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            if (!file.name.endsWith('.csv')) {
+                resultDiv.textContent = "Le fichier doit être au format CSV";
+                resultDiv.classList.add('error');
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/depenses/upload-csv', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.classList.remove('error');
+                    resultDiv.textContent = `${result.message} - ${result.count} dépenses importées`;
+                    resultDiv.style.display = 'block';
+                } else {
+                    resultDiv.classList.add('error');
+                    resultDiv.textContent = result.message || "Erreur lors de l'importation";
+                    resultDiv.style.display = 'block';
+                }
+            } catch (error) {
+                resultDiv.classList.add('error');
+                resultDiv.textContent = `Erreur: ${error.message}`;
+                resultDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
